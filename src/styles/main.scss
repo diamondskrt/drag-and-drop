@@ -1,0 +1,126 @@
+@import '@/styles/base.scss';
+@import '@/styles/variables.scss';
+@import '@/styles/colors.scss';
+
+.d-flex {
+  display: flex;
+}
+
+.bg-primary {
+  background-color: $primary;
+  color: $white;
+}
+
+.bg-dark {
+  background-color: $dark;
+  color: $white;
+}
+
+.rounded {
+  border-radius: 4px;
+}
+
+.rotated-icon {
+  transform: rotate(180deg);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-grab {
+  cursor: grab;
+}
+
+.no-select {
+  user-select: none;
+}
+
+.fill-height {
+  height: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-2 {
+  margin-top: calc($space * 2px);
+}
+
+.ml-2 {
+  margin-left: calc($space * 2px);
+}
+
+.mt-4 {
+  margin-top: calc($space * 4px);
+}
+
+.mt-6 {
+  margin-top: calc($space * 6px);
+}
+
+.pa-2 {
+  padding: calc($space * 2px) calc($space * 2px);
+}
+
+.container {
+  width: 100%;
+  padding: 12px;
+  margin-right: auto;
+  margin-left: auto;
+
+  &--fluid {
+    max-width: 100%;
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+  margin: -12px;
+}
+
+.col-12,
+.col-md-6 {
+  width: 100%;
+  padding: 12px;
+}
+
+.col-12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 960px) {
+  .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+.text-h6 {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 2rem;
+  letter-spacing: 0.0125em;
+}
+
+.text-subtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.75rem;
+  letter-spacing: 0.00937em;
+}
+
+.text-body {
+  font-size: 0.875rem;
+  font-weight: 300;
+  line-height: 1.25rem;
+  letter-spacing: 0.01786em;
+}
+
+.font-weight-regular {
+  font-weight: 400;
+}
