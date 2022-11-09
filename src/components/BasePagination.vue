@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, withDefaults, defineProps, defineEmits } from 'vue';
+import { computed, withDefaults } from 'vue';
 import BaseIcon from '@/components/BaseIcon.vue';
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  maxVisibleButtons: '5',
+  maxVisibleButtons: '10',
   totalPages: 10,
 });
 
@@ -37,6 +37,7 @@ const rangeItems = (from: number, to: number) => {
   return range;
 };
 
+// pagination from vuetify
 const pages = () => {
   const totalVisible = parseInt(props.maxVisibleButtons, 10);
 

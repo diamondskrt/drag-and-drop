@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import type { IPost } from '@/models/posts';
 
 interface Props {

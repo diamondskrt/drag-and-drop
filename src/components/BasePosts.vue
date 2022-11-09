@@ -18,8 +18,6 @@ const posts = ref<IPost[]>([]);
 
 const chunkSize = 10;
 
-const chunkedArray = ref<Array<IPost[]>>([]);
-
 const postLoading = ref(false);
 
 const chunk = (array: IPost[], size: number) => {
@@ -30,10 +28,25 @@ const chunk = (array: IPost[], size: number) => {
   return chunkedArray;
 };
 
+const getChunkedArrayLength = computed(() => {
+  const dragListIds = postStore.dragList.map((post) => post.id);
+  return chunk(
+    posts.value.filter((post: IPost) => !dragListIds.includes(post.id)),
+    chunkSize
+  )?.length;
+});
+
+const getCurrentPageArray = computed(() => {
+  const dragListIds = postStore.dragList.map((post) => post.id);
+
+  return chunk(
+    posts.value.filter((post: IPost) => !dragListIds.includes(post.id)),
+    chunkSize
+  )[postStore.currentPage - 1];
+});
+
 const getPosts = computed(() => {
-  return search.value
-    ? posts.value
-    : chunkedArray.value[postStore.currentPage - 1];
+  return search.value ? posts.value : getCurrentPageArray.value;
 });
 
 const onPageChange = (page: number) => {
@@ -46,8 +59,6 @@ const loadPosts = async () => {
       postLoading.value = true;
 
       posts.value = await axios.get('/posts');
-
-      chunkedArray.value = chunk(posts.value, chunkSize);
     } catch (error) {
       console.log(error);
     } finally {
@@ -56,26 +67,17 @@ const loadPosts = async () => {
   }
 };
 
-onMounted(async () => {
-  loadPosts();
-});
+onMounted(() => loadPosts());
 
 let timeout: number | undefined;
 
 const debounce = (value: string, ms: number) => {
   if (axios) {
-    // не нашел запрос title_like на jsonplaceholder
-    const foundPosts = posts.value.filter((post) =>
-      post.title.toLocaleLowerCase().includes(value.toLocaleLowerCase())
-    );
-
     const fnCall = async () => {
       try {
         posts.value = await axios.get('/posts', {
           params: {
-            id: foundPosts.length
-              ? foundPosts.map((post) => post.id)
-              : 'unknown',
+            title_like: value,
           },
         });
       } catch (error) {
@@ -90,11 +92,7 @@ const debounce = (value: string, ms: number) => {
 };
 
 watch(search, (value: string) => {
-  if (value) {
-    debounce(value, 500);
-  } else {
-    loadPosts();
-  }
+  debounce(value, 500);
 });
 
 onUnmounted(() => {
@@ -103,16 +101,13 @@ onUnmounted(() => {
   }
 });
 
-const isPostFromDraggableList = (postId: number) => {
-  return postStore.dragList.find((post) => post.id === postId);
-};
-
 const startDrag = (event: DragEvent, post: IPost) => {
   event.dataTransfer?.setData('itemId', `${post.id}`);
 };
 
 const onDrop = (event: DragEvent) => {
   const parentElement = (event.target as HTMLInputElement).parentElement;
+  const targetElement = event.target as HTMLInputElement;
   const itemId = event.dataTransfer?.getData('itemId');
 
   const foundPost = posts.value.find((post) => post.id === Number(itemId));
@@ -121,7 +116,9 @@ const onDrop = (event: DragEvent) => {
     (post) => post.id === Number(itemId)
   );
 
-  const droppablePostId = Number(parentElement?.dataset.id);
+  const droppablePostId = Number(
+    parentElement?.dataset.id || targetElement?.dataset.id
+  );
 
   if (foundPost) {
     if (!foundPostFromDragList) {
@@ -158,11 +155,8 @@ const onDrop = (event: DragEvent) => {
                 v-for="(post, index) in getPosts"
                 :key="post.id"
                 :post="post"
-                class="bg-primary rounded"
-                :class="{
-                  'mt-2': index !== 0,
-                  'cursor-grab': !isPostFromDraggableList(post.id),
-                }"
+                class="bg-primary rounded cursor-grab"
+                :class="{ 'mt-2': index !== 0 }"
                 draggable="true"
                 @dragstart="startDrag($event, post)"
               />
@@ -170,6 +164,8 @@ const onDrop = (event: DragEvent) => {
               <base-pagination
                 v-if="!search"
                 :current-page="postStore.currentPage"
+                :total-pages="getChunkedArrayLength"
+                :max-visible-buttons="`${getChunkedArrayLength}`"
                 class="mt-6"
                 @pagechanged="onPageChange"
               />
